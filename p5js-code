@@ -1,33 +1,79 @@
 let r;
 let factor = 0;
+var redC = 200;
+var blueC = 20;
+var redPlus = false;
+var bluePlus = true;
+
+var Shape = function(length){
+  this.perimeterLength = length;
+};
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  r = height / 2 - 16;
+  createCanvas(500,500);
+  r = height/2 - 16;
 }
 
+//
 function getVector(index, total) {
   const angle = map(index % total, 0, total, 0, TWO_PI);
-  const v = p5.Vector.fromAngle(angle + PI);
+  const v = p5.Vector.fromAngle(angle + PI );
   v.mult(r);
   return v;
 }
 
+function getColour() {
+  if (redC >= 255){
+    redPlus = false;
+  }
+  else if (redC <= 0) {
+    redPlus = true;
+  }
+  if (blueC >= 255) {
+    bluePlus = false;
+  }
+  else if (blueC <= 0) {
+    bluePlus = true;
+  }
+  
+  if (redPlus) {
+    redC+=2;
+  }
+  else {
+    redC-=2;
+  }
+  if (bluePlus) {
+    blueC+=2;
+  }
+  else {
+    blueC-=2;
+  }
+  
+  return color(redC, 0, blueC);
+}
+
+var firsttime = true;
+
 function draw() {
   background(0);
-  const total = 200; //int(map(mouseX, 0, width, 0, 200));
-  factor += 0.015;
-
-  translate(width / 2, height / 2);
-  stroke(255, 150);
-  strokeWeight(2);
+  
+  const total = 100;
+    
+  factor += 0.015;  
+  
+  translate (width/2, height/2);
+  
+  stroke(getColour());
+  
   noFill();
-  ellipse(0, 0, r * 2);
-
-  strokeWeight(2);
+  circle(0, 0, r * 2);
+  
   for (let i = 0; i < total; i++) {
+    
     const a = getVector(i, total);
     const b = getVector(i * factor, total);
-    line(a.x, a.y, b.x, b.y);
+    
+    line(a.x, a.y, b.x, b.y);    
   }
+  
 }
