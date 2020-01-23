@@ -1,79 +1,105 @@
-let r;
-let factor = 0;
-var redC = 200;
-var blueC = 20;
-var redPlus = false;
-var bluePlus = true;
-
-var Shape = function(length){
-  this.perimeterLength = length;
-};
-
 function setup() {
   createCanvas(500,500);
-  r = height/2 - 16;
 }
 
-//
-function getVector(index, total) {
-  const angle = map(index % total, 0, total, 0, TWO_PI);
-  const v = p5.Vector.fromAngle(angle + PI );
-  v.mult(r);
-  return v;
-}
+var CircleShape = function(radius){
+  this.radius = radius;
+};
 
-function getColour() {
-  if (redC >= 255){
-    redPlus = false;
-  }
-  else if (redC <= 0) {
-    redPlus = true;
-  }
-  if (blueC >= 255) {
-    bluePlus = false;
-  }
-  else if (blueC <= 0) {
-    bluePlus = true;
-  }
-  
-  if (redPlus) {
-    redC+=2;
-  }
-  else {
-    redC-=2;
-  }
-  if (bluePlus) {
-    blueC+=2;
-  }
-  else {
-    blueC-=2;
-  }
-  
-  return color(redC, 0, blueC);
-}
-
-var firsttime = true;
-
-function draw() {
-  background(0);
-  
-  const total = 100;
-    
-  factor += 0.015;  
-  
-  translate (width/2, height/2);
-  
-  stroke(getColour());
-  
+CircleShape.prototype.draw = function() {
   noFill();
-  circle(0, 0, r * 2);
+  circle(0, 0, this.radius * 2);
+};
+
+CircleShape.prototype.getVectorPnt = function(scalarPnt) {
+  const angle = map(scalarPnt % 100, 0, 100, 0, TWO_PI);
+  const vectorPnt = p5.Vector.fromAngle(angle + PI);
+  vectorPnt.mult(this.radius);
+  return vectorPnt;
+};
+
+
+
+var Visualizer = function(shape, size) {
   
-  for (let i = 0; i < total; i++) {
+  if (shape === "circle") {
+    this.numPoints = size;
+    this.shape = new CircleShape(size);
+  } 
+  
+  this.factor = 0;
+  
+  this.redC  = random(30,200);
+  this.blueC = random(30,200);
+  this.redPlus = this.bluePlus = false;
+  if ( random(10) < 5) { this.redPlus  = true; }
+  if ( random(10) < 5) { this.bluePlus = true; }
+};
+
+Visualizer.prototype.draw = function() {
     
-    const a = getVector(i, total);
-    const b = getVector(i * factor, total);
+  var shapeColour = this.getColour();
+  stroke(shapeColour);
+  
+  this.shape.draw();
+
+  for (let scalarPnt = 0; scalarPnt < 100; 
+       scalarPnt+=100/this.numPoints) {
+    const a = this.shape.getVectorPnt(scalarPnt);
+    const b = this.shape.getVectorPnt(scalarPnt * this.factor);
     
     line(a.x, a.y, b.x, b.y);    
   }
   
+  this.factor += 0.015;
+
+};
+
+Visualizer.prototype.getColour = function() {
+  
+  if (this.redC >= 255){
+    this.redPlus = false;
+  }
+  else if (this.redC <= 0) {
+    this.redPlus = true;
+  }
+  if (this.blueC >= 255) {
+    this.bluePlus = false;
+  }
+  else if (this.blueC <= 0) {
+    this.bluePlus = true;
+  }
+  
+  if (this.redPlus) {
+    this.redC+=2;
+  }
+  else {
+    this.redC-=2;
+  }
+  if (this.bluePlus) {
+    this.blueC+=2;
+  }
+  else {
+    this.blueC-=2;
+  }
+  
+  return color(this.redC, 0, this.blueC);
+}
+
+var visualizer1 = null;
+var visualizer2 = null;
+
+function draw() {
+  
+  background(0);
+  
+  if (visualizer1 === null) {
+    visualizer1 = new Visualizer("circle", 100);
+  } 
+  resetMatrix();
+  translate (width/4, height/4);
+  visualizer1.draw();
+
+  
+
 }
